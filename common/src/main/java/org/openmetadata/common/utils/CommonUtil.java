@@ -104,10 +104,13 @@ public final class CommonUtil {
   public static Collection<String> getResourcesFromDirectory(File file, Pattern pattern)
       throws IOException {
     final Path root = Path.of(file.getPath());
+    Pattern windowsPattern = Pattern.compile(
+      StringUtils.join(pattern.toString().split("/"), "\\\\"));
     try (Stream<Path> paths = Files.walk(Paths.get(file.getPath()))) {
       return paths
           .filter(Files::isRegularFile)
-          .filter(path -> pattern.matcher(path.toString()).matches())
+          .filter(path -> pattern.matcher(path.toString()).matches()
+                  || windowsPattern.matcher(path.toString()).matches())
           .map(
               path -> {
                 String relativePath = root.relativize(path).toString();
